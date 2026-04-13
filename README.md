@@ -6,26 +6,32 @@ Ce dépôt est un **journal d'apprentissage structuré** documentant ma montée 
 
 ## 📂 Structure du Repository
 
-Voici l'organisation de ce projet, segmentée par étapes de progression technique :
-
-```md
+```text
 .
-├── part_1-spring-essentials/         # Fondamentaux & Fonctionnement bas niveau
-│   ├── 01-java-config.md             # Beans, @Configuration, @Bean
-│   ├── 02-bean-lifecycle.md          # Post-processors, init/destroy phases
-│   ├── 03-aop-proxies.md             # Aspect Oriented Programming
-│   └── README.md                     # Documentation théorique (Bas niveau)
-├── part_2-spring-boot-features.md    # Fonctionnalités haut niveau & Autoconfig
-│   ├── 01-data-jpa.md                # Persistance & Repositories
-│   ├── 02-security-basics.md         # Authentication / Authorization
-│   ├── 03-actuator-metrics.md        # Observabilité & Monitoring
-│   └── README.md                     # Documentation des outils Spring Boot
-├── part_3-cashcard-api/              # Projet de mise en pratique (Case Study)
-│   ├── src/                          # Code source de l'application
-│   ├── tests/                        # Suite de tests TDD
-│   ├── pom.xml                       # Gestion des dépendances
-│   └── README.md                     # Spécifications de l'API Family Cash Card
-└── README.md                         # Portail d'entrée (ce fichier)
+├── MasterRepo/
+│   ├── mvnw
+│   ├── mvnw.cmd
+│   ├── pom.xml
+│   ├── README.md
+│   │
+│   ├── part_1-spring-essentials/
+│   │   ├── 01-java-config.md
+│   │   ├── 02-bean-lifecycle.md
+│   │   ├── 03-aop-proxies.md
+│   │   ├── README.md
+│   │   └── sandbox/
+│   │
+│   ├── part_2-spring-boot-features/
+│   │   ├── 01-data-jpa.md
+│   │   ├── 02-security-basics.md
+│   │   ├── 03-actuator-metrics.md
+│   │   ├── README.md
+│   │   └── sandbox/
+│   │
+│   ├── src/
+       ├── main/
+       └── test/
+
 ```
 
 ---

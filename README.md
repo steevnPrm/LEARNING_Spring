@@ -1,112 +1,94 @@
-# 🍃 MASTER REPOSITORY : Parcours Spring Professional
+# Study Case: Keycloak & Spring Boot Security 🛡️
 
-Ce dépôt est un **journal d'apprentissage structuré** documentant ma montée en compétences sur l'écosystème Spring. L'objectif est de démontrer une compréhension profonde, allant des mécanismes internes du framework jusqu'à la mise en production d'une API sécurisée.
+Ce projet est une étude de cas pratique sur la mise en œuvre d'une architecture de sécurité moderne utilisant **Keycloak** comme serveur d'identité et **Spring Boot 3** comme serveur de ressources, le tout conteneurisé avec **Docker**.
+
+## 🚀 Objectifs du Projet
+
+* Configurer une stack d'authentification robuste avec **OAuth2** et **OpenID Connect (OIDC)**.
+* Gérer la communication réseau entre conteneurs Docker (Réseau interne vs Exposition externe).
+* Sécuriser des endpoints API via la validation de jetons **JWT**.
+* Persistance des données d'identité avec **PostgreSQL**.
 
 ---
 
-## 📂 Structure du Repository
+## 🏗️ Architecture Technique
 
-```text
-.
-├── MasterRepo/
-│   ├── mvnw
-│   ├── mvnw.cmd
-│   ├── pom.xml
-│   ├── README.md
-│   │
-│   ├── part_1-spring-essentials/
-│   │   ├── 01-java-config.md
-│   │   ├── 02-bean-lifecycle.md
-│   │   ├── 03-aop-proxies.md
-│   │   ├── README.md
-│   │   └── sandbox/
-│   │
-│   ├── part_2-spring-boot-features/
-│   │   ├── 01-data-jpa.md
-│   │   ├── 02-security-basics.md
-│   │   ├── 03-actuator-metrics.md
-│   │   ├── README.md
-│   │   └── sandbox/
-│   │
-│   ├── src/
-       ├── main/
-       └── test/
+Le projet repose sur trois composants principaux orchestrés par Docker Compose :
 
+1. **Keycloak (v24+)** : Fournisseur d'identité (IdP).
+2. **PostgreSQL** : Base de données pour la persistance des Realms et Utilisateurs.
+3. **Spring Boot API** : Serveur de ressources sécurisé.
+
+---
+
+## 🛠️ Défis Techniques Résolus
+
+### Le Conflit d'Identité Réseau (The "Double Visage")
+
+L'un des défis majeurs de ce projet a été la gestion de l'émetteur du jeton (`iss`).
+
+* **Problème** : Keycloak émet des jetons via `localhost:8081` (pour le client externe), mais l'API Spring doit valider ces jetons via le réseau interne Docker (`keycloak:8080`).
+* **Solution** : Implémentation d'un `JwtDecoder` explicite pour séparer la validation logique de l'émetteur de la récupération technique des clés cryptographiques (JWK).
+
+### Configuration Docker Hybride
+
+Utilisation de variables d'environnement dynamiques pour permettre à Keycloak de fonctionner en mode développement (`start-dev`) tout en restant accessible aux applications Java conteneurisées.
+
+---
+
+## 📋 Pré-requis
+
+* Docker & Docker Compose
+* Java 21+
+* Curl (pour les tests)
+
+---
+
+## 🚦 Démarrage Rapide
+
+### 1. Lancer l'infrastructure
+
+```bash
+docker compose up -d
+```
+
+### 2. Accéder à l'interface
+
+* **Keycloak Admin Console** : `http://localhost:8081`
+* **Identifiants** : `admin` / `admin`
+
+### 3. Tester l'authentification
+
+Générer un jeton via le terminal :
+
+```bash
+curl -X POST http://localhost:8081/realms/master-repo/protocol/openid-connect/token \
+  -d "client_id=keycloak" \
+  -d "username=test" \
+  -d "password=test" \
+  -d "grant_type=password"
+```
+
+Appeler l'API sécurisée :
+
+```bash
+curl -i http://localhost:8080/profile -H "Authorization: Bearer <VOTRE_TOKEN>"
 ```
 
 ---
 
-## 🚀 Objectif du Repository
+## 🔍 Feedback & Code Review
 
-Contrairement à un projet monolithique unique, ce repository sert de base de connaissances technique. Chaque module contient des exemples de code et des tests d'intégration validant les concepts abordés dans le cursus officiel **Spring Academy**.
-
----
-
-## 📚 Sommaire du Parcours
-
-### 🧩 Partie 1 : Fondamentaux du Framework (Spring Essentials)
-
-*Focus : Comprendre le fonctionnement interne et la gestion du contexte.*
-
-* **Core Container** : Inversion de Contrôle (IoC) et Injection de Dépendances (DI)
-* **Bean Lifecycle** : Phases d'initialisation et de destruction
-* **AOP** : Proxies, Pointcuts, Advices
-* **Data Access & Transactions** : `JdbcTemplate`, `@Transactional`
+* **Découplage** : La configuration de sécurité est extraite de manière explicite dans `SecurityConfig.java` pour éviter les comportements imprévus de l'auto-configuration Spring en milieu Docker.
+* **Stateless** : L'API est configurée en mode `STATELESS` (aucune session côté serveur), garantissant une scalabilité horizontale parfaite.
+* **Sécurité** : Désactivation sélective du CSRF pour les endpoints API protégés par JWT.
 
 ---
 
-### ⚡ Partie 2 : Productivité & Abstractions (Spring Boot)
+## 📚 Ressources
 
-*Focus : Développement d'applications modernes.*
-
-* **Auto-configuration** : `@SpringBootApplication`, mécanisme opinionated
-* **Spring Data JPA** : Entités et repositories
-* **Web & REST** : Spring MVC
-* **Actuator** : Metrics, Health, Info
+* [Documentation Keycloak](https://www.keycloak.org/documentation)
+* [Spring Security OAuth2 Resource Server](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/index.html)
 
 ---
-
-### 🛠️ Partie 3 : Mise en pratique (Projet "Family Cash Card")
-
-*Focus : Application via TDD.*
-
-* **TDD** : Red → Green → Refactor
-* **CRUD avancé** : Pagination & tri
-* **Sécurité** : Isolation des données par utilisateur
-
----
-
-## 🧩 Structure des synthèses techniques
-
-👉 Cette section définit le **format standard utilisé dans chaque chapitre**.
-
-Chaque module (`01-java-config`, `02-bean-lifecycle`, etc.) contient un `README.md` structuré de la manière suivante :
-
-### 1. 🎯 Objectif
-
-Définir ce que le chapitre permet de comprendre.
-
-### 2. ❓ Pourquoi
-
-Expliquer le problème technique résolu et le contexte d’utilisation.
-
-### 3. 🧭 Diagramme (UML / Mermaid)
-
-Visualisation du concept pour faciliter la compréhension.
-
-### 4. ⚙️ Process
-
-Décrire le fonctionnement ou les étapes de mise en place.
-
----
-
-## 🛠 Environnement Technique
-
-* **Langage** : Java 21+
-* **Build Tool** : Maven
-* **Framework** : Spring Boot 3.x
-* **Tests** : JUnit 5, AssertJ, Mockito
-
----
-
-> *"L'élégance du code Spring réside dans sa capacité à rendre le complexe invisible."*
+*Ce projet a été réalisé dans le cadre d'un apprentissage approfondi des flux **OAuth2** et de la **conteneurisation**.*
